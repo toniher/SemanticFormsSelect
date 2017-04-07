@@ -161,6 +161,12 @@ class SemanticFormsSelect {
 			$inname.='[]';
 		}
 
+		// If label, we might have label apart from value
+		$value_labels = array();
+		if ( array_key_exists( "label", $other_args ) ) {
+			$value_labels = self::mapLabels( $values );
+		}
+		
 		// TODO Use Html::
 
 		$spanextra=$is_mandatory?'mandatoryFieldSpan':'';
@@ -184,13 +190,22 @@ class SemanticFormsSelect {
 		$ret.="<option></option>";
 
 		foreach ($curvalues as $cur) {
-			$ret.="<option selected='selected'>$cur</option>";
+			if ( array_key_exists( $cur, $value_labels ) ) {
+				$ret.="<option value='".$cur."' selected='selected'>".$value_labels[$cur]."</option>";
+			} else {
+				$ret.="<option selected='selected'>$cur</option>";
+			}
 		}
 
 		if ($staticvalue){
 			foreach($values as $val){
 				if(!in_array($val, $curvalues)){
-					$ret.="<option>$val</option>";
+					
+					if ( array_key_exists( $val, $value_labels ) ) {
+						$ret.="<option value='".$val."'>".$value_labels[$val]."</option>";
+					} else {
+						$ret.="<option>$val</option>";
+					}
 				}
 			}
 		}
@@ -211,5 +226,42 @@ class SemanticFormsSelect {
 
 		return $ret;
 	}
-
+	
+	// Processing label - Adapting from SFSelect_processNameValues Javascript one
+	private static function mapLabels( $values ){
+	
+		$value_labels = array();
+		$regex = " (";
+	
+		for ($i=0; $i<count( $values ); $i++){
+			
+			$postval = explode( $regex, $values[$i] );
+			
+			// If actual label, go ahead
+			if ( count( $postval ) > 1 ) {
+				
+				if ( count( $postval ) === 2 ) {
+					
+					$label = preg_replace( "/\)\s*$/", $postval[1], "" );
+					$value = $postval[0];
+					
+					$value_labels[$value] = $label;
+					
+				} else {
+					$last = count( $postval ) - 1;
+					$label = preg_replace( "\)\s*$", $postval[$last], "" );
+					
+					$slice = array_slice( $postval, 0, $last-1 );
+					$value = implode( $slice, " (" );
+					
+					$value_labels[$value] = $label;
+				}
+				
+			}
+			
+		}
+		
+		return $value_labels;
+	}
+	
 }
