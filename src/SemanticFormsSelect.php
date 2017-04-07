@@ -194,7 +194,7 @@ class SemanticFormsSelect {
 		$ret.="<option></option>";
 
 		foreach ($curvalues as $cur) {
-			if ( array_key_exists( $cur, $value_labels ) && !empty( $value_labels[$cur] ) ) {
+			if ( array_key_exists( $cur, array_keys( $value_labels ) ) && !empty( $value_labels[$cur] ) ) {
 				$ret.="<option value='".$cur."' selected='selected'>".$value_labels[$cur]."</option>";
 			} else {
 				$ret.="<option selected='selected'>$cur</option>";
@@ -202,11 +202,11 @@ class SemanticFormsSelect {
 		}
 
 		if ($staticvalue){
-			foreach($values as $val){
+			foreach($value_labels as $val => $label){
 				if(!in_array($val, $curvalues)){
 					
-					if ( !empty( $value_labels[$val] ) ) {
-						$ret.="<option value='".$val."'>".$value_labels[$val]."</option>";
+					if ( !empty( $label ) ) {
+						$ret.="<option value='".$val."'>".$label."</option>";
 					} else {
 						$ret.="<option>$val</option>";
 					}
@@ -234,6 +234,7 @@ class SemanticFormsSelect {
 	// Processing label - Adapting from SFSelect_processNameValues Javascript one
 	private static function mapLabels( $values ){
 	
+		// TODO: This assumption with ( ) should be changed.
 		$value_labels = array();
 		$regex = " (";
 	
@@ -245,24 +246,22 @@ class SemanticFormsSelect {
 			if ( count( $postval ) > 1 ) {
 				
 				if ( count( $postval ) === 2 ) {
-					
+				
 					$label = preg_replace( "/\)\s*$/", "", $postval[1] );
 					$value = $postval[0];
 					
 					$value_labels[$value] = $label;
-					
+						
 				} else {
 					$last = count( $postval ) - 1;
-					$label = preg_replace( "\)\s*$", "", $postval[$last] );
 					
-					$slice = array_slice( $postval, 0, $last-1 );
-					$value = implode( $slice, " (" );
+					$slice = array_slice( $postval, 1, $last );
+					$label = implode( $slice, " (" );
+					$label = preg_replace( "/\)\s*$/", "", $label );
 					
 					$value_labels[$value] = $label;
 				}
-				
 			}
-			
 		}
 		
 		return $value_labels;
