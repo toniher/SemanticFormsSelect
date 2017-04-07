@@ -165,6 +165,10 @@ class SemanticFormsSelect {
 		$value_labels = array();
 		if ( array_key_exists( "label", $other_args ) ) {
 			$value_labels = self::mapLabels( $values );
+		} else {
+			foreach ( $values as $val ) {
+				$value_labels[$val] = "";
+			}
 		}
 		
 		// TODO Use Html::
@@ -190,7 +194,7 @@ class SemanticFormsSelect {
 		$ret.="<option></option>";
 
 		foreach ($curvalues as $cur) {
-			if ( array_key_exists( $cur, $value_labels ) ) {
+			if ( array_key_exists( $cur, $value_labels ) && !empty( $value_labels[$cur] ) ) {
 				$ret.="<option value='".$cur."' selected='selected'>".$value_labels[$cur]."</option>";
 			} else {
 				$ret.="<option selected='selected'>$cur</option>";
@@ -201,7 +205,7 @@ class SemanticFormsSelect {
 			foreach($values as $val){
 				if(!in_array($val, $curvalues)){
 					
-					if ( array_key_exists( $val, $value_labels ) ) {
+					if ( !empty( $value_labels[$val] ) ) {
 						$ret.="<option value='".$val."'>".$value_labels[$val]."</option>";
 					} else {
 						$ret.="<option>$val</option>";
@@ -242,14 +246,14 @@ class SemanticFormsSelect {
 				
 				if ( count( $postval ) === 2 ) {
 					
-					$label = preg_replace( "/\)\s*$/", $postval[1], "" );
+					$label = preg_replace( "/\)\s*$/", "", $postval[1] );
 					$value = $postval[0];
 					
 					$value_labels[$value] = $label;
 					
 				} else {
 					$last = count( $postval ) - 1;
-					$label = preg_replace( "\)\s*$", $postval[$last], "" );
+					$label = preg_replace( "\)\s*$", "", $postval[$last] );
 					
 					$slice = array_slice( $postval, 0, $last-1 );
 					$value = implode( $slice, " (" );
