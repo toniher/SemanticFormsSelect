@@ -94,7 +94,9 @@ class SemanticFormsSelect {
 		$data = array();
 
 		if ($staticvalue) {
-			$values = explode(",", $values);
+
+			$data['sep'] = array_key_exists( 'sep', $other_args ) ? $other_args["sep"] : ',';			
+			$values = explode( $data['sep'] , $values);
 			$values = array_map("trim", $values);
 			$values = array_unique($values);
 		} else {
