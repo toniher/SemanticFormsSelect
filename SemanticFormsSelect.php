@@ -23,7 +23,7 @@ if ( defined( 'SFS_VERSION' ) ) {
 	return 1;
 }
 
-define( 'SFS_VERSION', '1.3.0' );
+define( 'SFS_VERSION', '1.3.1' );
 
 /**
  * @codeCoverageIgnore
