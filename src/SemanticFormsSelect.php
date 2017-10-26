@@ -90,6 +90,7 @@ class SemanticFormsSelect {
 				$staticvalue = true;
 			}
 		}
+		
 
 		$data = array();
 
@@ -99,6 +100,9 @@ class SemanticFormsSelect {
 			$values = explode( $data['sep'] , $values);
 			$values = array_map("trim", $values);
 			$values = array_unique($values);
+			
+			$data['label'] = array_key_exists( 'label', $other_args );
+
 		} else {
 
 			if ($wgScriptSelectCount == 0 ) {
@@ -182,17 +186,36 @@ class SemanticFormsSelect {
 			$curvalues=array();
 		}
 
+		$labelArray = array();
+		
+		if ( array_key_exists( "label", $data ) && $values ) {
+			$labelArray = self::getLabels( $values );
+		}
+		
+		
 		// TODO handle empty value case.
 		$ret.="<option></option>";
 
+		// TODO handle also labels
 		foreach ($curvalues as $cur) {
-			$ret.="<option selected='selected'>$cur</option>";
+			if ( array_key_exists( $cur, $labelArray ) ) {
+				$ret.="<option value='".$labelArray[ $val ][0]."' selected='selected'>".$labelArray[ $val ][1]."</option>";
+			} else {
+				$ret.="<option selected='selected'>$cur</option>";
+			}
+
 		}
 
+		// TODO handle labels
 		if ($staticvalue){
 			foreach($values as $val){
 				if(!in_array($val, $curvalues)){
-					$ret.="<option>$val</option>";
+					
+					if ( array_key_exists( $val, $labelArray ) ) {
+						$ret.="<option value='".$labelArray[ $val ][0]."'>".$labelArray[ $val ][1]."</option>";
+					} else {
+						$ret.="<option>$val</option>";
+					}
 				}
 			}
 		}
@@ -212,6 +235,60 @@ class SemanticFormsSelect {
 		Output::commitToParserOutput( $this->parser->getOutput() );
 
 		return $ret;
+	}
+	
+	private static function getLabels( $labels ) {
+			
+		foreach ( $labels as $label ) {
+			
+			// Check Break
+			$openBr = 0;
+			$doneBr = 0;
+			$num = 0;
+			
+			$labelArr = str_split ( $label );
+			
+			$end = count( $labelArr ) - 1;
+			$iter = $end;
+			
+			$endBr = $end;
+			$startBr = 0;
+			
+			while ( $doneBr == 0 && $iter >= 0 ) {
+			
+				$char = $labelArr[ $iter ];
+				
+				if ( $char == ")" ) {
+					$openBr = $openBr - 1;
+					
+					if ( $num == 0 ) {
+						$endBr = $iter;
+						$num = $num + 1;
+					}
+				}
+				
+				if ( $char == "(" ) {
+					$openBr = $openBr + 1;
+					
+					if ( $num > 0 && $openBr == 0 ) {
+						$startBr = $iter;
+						$doneBr = 1;
+					}
+				}
+				
+				$iter = $iter - 1;
+				
+			}
+			
+			$labelValue = implode( "", array_slice( $labelArr, $startBr+1, $endBr-$startBr-1 ) );			
+			$labelKey = implode( "", array_slice( $labelArr, 0, $startBr-1 ) );
+			
+			
+			$labelArray[ $label ] = [ $labelKey, $labelValue ] ;
+		}
+		
+		return $labelArray;
+		
 	}
 
 }

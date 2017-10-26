@@ -137,28 +137,53 @@ function SFSelect_setDependentValues (nameobj, fobj, values){
 function SFSelect_processNameValues( values ) {
 
 	var namevalues = [];
-
-	var regex = " (";
-
+	
 	for(var i=0; i<values.length; i++){
 
-		var postval = values[i].split( regex );
-		if ( postval.length < 2 ) {
-			namevalues[i] = [ values[i], values[i] ];
-		} else if ( postval.length === 2 ) {
-			var label = postval[1].replace(/\)\s*$/, "");
-			var value = postval[0];
-
-			namevalues[i] = [ value, label ];
-		} else {
-			var last = postval.length - 1;
-			var label = postval[last].replace(/\)\s*$/, "");
-
-			var slice = postval.slice(0, last-1);
-			var value = slice.join( " (" );
-
-			namevalues[i] = [ value, label ];
+		var openBr = 0;
+		var doneBr = 0;
+		var num = 0;
+		
+		var label = values[i];
+		
+		var labelArr = label.split("");
+		
+		var end = labelArr.length - 1;
+		var iter = end;
+		
+		var endBr = end;
+		var startBr = 0;
+		
+		while ( doneBr === 0 && iter >= 0 ) {
+			
+			var charLabel = labelArr[ iter ];
+							
+			if ( charLabel === ")" ) {
+				openBr = openBr - 1;
+				
+				if ( num === 0 ) {
+					endBr = iter;
+					num = num + 1;
+				}
+			}
+			
+			if ( charLabel === "(" ) {
+				openBr = openBr + 1;
+				
+				if ( num > 0 && openBr === 0 ) {
+					startBr = iter;
+					doneBr = 1;
+				}
+			}
+			
+			iter = iter - 1;
 		}
+		
+		labelValue = ( labelArr.slice( startBr+1, endBr-1 ) ).join("");
+		labelKey = ( labelArr.slice( 0, startBr - 1 ) ).join("");
+
+		namevalues.push( [ labelKey, labelValue ] );
+	
 	}
 
 	return namevalues;
