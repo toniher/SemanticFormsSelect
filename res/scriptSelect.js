@@ -179,7 +179,7 @@ function SFSelect_processNameValues( values ) {
 			iter = iter - 1;
 		}
 		
-		labelValue = ( labelArr.slice( startBr+1, endBr-1 ) ).join("");
+		labelValue = ( labelArr.slice( startBr+1, endBr ) ).join("");
 		labelKey = ( labelArr.slice( 0, startBr - 1 ) ).join("");
 
 		namevalues.push( [ labelKey, labelValue ] );
