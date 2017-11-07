@@ -123,7 +123,7 @@ function SFSelect_setDependentValues (nameobj, fobj, values){
 			if (fobj.selectrm && fobj.selecttemplate != fobj.valuetemplate&&fobj.selectismultiple){
 				jQuery(element).closest("div.multipleTemplateInstance").remove();
 			} else{
-				if (selectedValues.length!=0)
+				if (selectedValues.length!=0 || values.length === 1 )
 					jQuery(element).trigger("change");
 			}
 		} else if (!SFSelect_arrayEqual(newselected, selectedValues)){
@@ -221,6 +221,8 @@ function SFSelect_arrayEqual(a, b)
 	 * label: boolean, process ending content () as label in option values.
 	 * sep: Separator for the list of retrieved values, default ','
 	 */
+
+    // get the objects from PHP using mw.config helper
 	var SFSelect_fobjs = $.parseJSON( mw.config.get( 'sf_select' ) );
 
 	function SFSelect_changeHandler (src ) {
@@ -330,21 +332,31 @@ function SFSelect_arrayEqual(a, b)
 
 	var objs = null;
 
-	//fields loading at load time.
+	//populate Select fields at load time
 	for (var i=0; i<SFSelect_fobjs.length; i++){
-
+	
 		var fobj = SFSelect_fobjs[i];
-		var valuepat = "input[name=" + fobj.valuetemplate + "\\["+ fobj.valuefield + "\\]]";
-
+		
+		//var valuepat = "input[name='" + fobj.valuetemplate + "\\["+ fobj.valuefield + "\\]']";
+		
+		// hack to support multi instance templates: select all "select" items starting with fobj.valuetemplate
+		// example name attribute: name="myTemplate[0a][myField]"
+		var valuepat = 'input[name^="' + fobj.valuetemplate + '"]';
+	
 		if ($(valuepat).val()){
 			objs=jQuery(valuepat);
 		} else{
-			valuepat= "select[name=" + fobj.valuetemplate + "\\["+ fobj.valuefield + "\\]]";
+			//valuepat= "select[name='" + fobj.valuetemplate + "\\["+ fobj.valuefield + "\\]']";
+			
+			// hack to support multi instance templates: select all "select" items starting with fobj.valuetemplate
+			// example name attribute: name="myTemplate[0a][myField]"
+			valuepat = 'select[name^="' + fobj.valuetemplate + '"]';
+			
 			objs=jQuery(valuepat);
 		}
-
+	
 		objs.trigger("change");
-
+	
 	}
 
 }( jQuery, mediaWiki ) );
