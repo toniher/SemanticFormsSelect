@@ -134,7 +134,7 @@ class SemanticFormsSelect {
 		}
 
 		// Avoids repeating data info
-		if ( self::notInArray( "selectfield", $data["selectfield"], self::$data ) ) {
+		if ( self::notInArray( "selectfield", $data["selectfield"], self::$data ) && ! $staticvalue ) {
 				
 			self::$data[] = $data;
 
@@ -175,7 +175,7 @@ class SemanticFormsSelect {
 		$spanextra=$is_mandatory?'mandatoryFieldSpan':'';
 
 		$curvaluesStr = "";
-		$curvalues = null;
+		$curvalues = array();
 		
 		if ( $cur_value ){
 			if ( $cur_value==='current user' ){
