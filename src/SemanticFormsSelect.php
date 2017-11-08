@@ -170,22 +170,31 @@ class SemanticFormsSelect {
 		// TODO Use Html::
 
 		$spanextra=$is_mandatory?'mandatoryFieldSpan':'';
-		$ret="<span class=\"inputSpan $spanextra\"><select name='$inname' id='input_$sfgFieldNum' $extraatt>";
-		$curvalues=null;
+
+		$curvaluesStr = "";
+		
 		if ($cur_value){
 			if ($cur_value==='current user'){
-				$cur_value=$wgUser->getName();
+				$curvaluesStr=$wgUser->getName();
 			}
 			if (is_array($cur_value) ){
-				$curvalues=$cur_value;
+				$curvaluesStr=implode( $data["sep"], $cur_value );
 			} else{
-				$curvalues=array_map("trim", explode(",", $cur_value));
+				// Added sep values
+				$curvaluesStr=trim( $cur_value );
 			}
 
-		} else {
-			$curvalues=array();
 		}
+		
+		// Separator
+		$extraatt = $extraatt." data-sep='".$data['sep']."'";
+		
+		// Curvalues
+		$extraatt = $extraatt." data-curvalues='".str_replace( "'", "\'", $curvaluesStr )."'";
 
+		// Putting cur values here
+		$ret="<span class=\"inputSpan $spanextra\"><select name='$inname' id='input_$sfgFieldNum' $extraatt>";
+		
 		$labelArray = array();
 		
 		if ( array_key_exists( "label", $data ) && $values ) {
@@ -197,26 +206,26 @@ class SemanticFormsSelect {
 		$ret.="<option></option>";
 
 		// TODO handle also labels
-		foreach ($curvalues as $cur) {
-			if ( array_key_exists( $cur, $labelArray ) ) {
-				$ret.="<option value='".$labelArray[ $val ][0]."' selected='selected'>".$labelArray[ $val ][1]."</option>";
-			} else {
-				$ret.="<option selected='selected'>$cur</option>";
-			}
-
-		}
+		//foreach ($curvalues as $cur) {
+		//	if ( array_key_exists( $cur, $labelArray ) ) {
+		//		$ret.="<option value='".$labelArray[ $val ][0]."' selected='selected'>".$labelArray[ $val ][1]."</option>";
+		//	} else {
+		//		$ret.="<option selected='selected'>$cur</option>";
+		//	}
+		//
+		//}
 
 		// TODO handle labels
 		if ($staticvalue){
 			foreach($values as $val){
-				if(!in_array($val, $curvalues)){
+				// if(!in_array($val, $curvalues)){
 					
-					if ( array_key_exists( $val, $labelArray ) ) {
-						$ret.="<option value='".$labelArray[ $val ][0]."'>".$labelArray[ $val ][1]."</option>";
-					} else {
-						$ret.="<option>$val</option>";
-					}
+				if ( array_key_exists( $val, $labelArray ) ) {
+					$ret.="<option value='".$labelArray[ $val ][0]."'>".$labelArray[ $val ][1]."</option>";
+				} else {
+					$ret.="<option>$val</option>";
 				}
+				// }
 			}
 		}
 
