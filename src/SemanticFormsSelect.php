@@ -93,15 +93,7 @@ class SemanticFormsSelect {
 		
 
 		$data = array();
-
-		if ( ! $staticvalue ) {
-			if ($wgScriptSelectCount == 0 ) {
-				Output::addModule( 'ext.sf_select.scriptselect' );
-			}
-			
-			$wgScriptSelectCount++;
-
-		}
+		Output::addModule( 'ext.sf_select.scriptselect' );
 		
 		$data['label'] = array_key_exists( 'label', $other_args );
 
@@ -131,13 +123,6 @@ class SemanticFormsSelect {
 			$data['selectquery'] = $selectField['query'];
 		} else{
 			$data['selectfunction'] = $selectField['function'];
-		}
-
-		// Avoids repeating data info
-		if ( self::notInArray( "selectfield", $data["selectfield"], self::$data ) && ! $staticvalue ) {
-				
-			self::$data[] = $data;
-
 		}
 
 		$extraatt="";
@@ -174,30 +159,23 @@ class SemanticFormsSelect {
 
 		$spanextra=$is_mandatory?'mandatoryFieldSpan':'';
 
-		$curvaluesStr = "";
 		$curvalues = array();
 		
 		if ( $cur_value ){
-			if ( $cur_value==='current user' ){
-				$curvaluesStr=$wgUser->getName();
+			if ( $cur_value === 'current user' ){
+				$cur_value = $wgUser->getName();
 			}
 			if ( is_array( $cur_value ) ){
-				$curvaluesStr=implode( $data["sep"], $cur_value );
 				$curvalues = $cur_value;
 
 			} else{
 				// Added sep values
-				$curvaluesStr=trim( $cur_value );
 				$curvalues=array_map("trim", explode($data['sep'], $cur_value));
 			}
 
 		}
 		
-		// Separator
-		$extraatt = $extraatt." data-sep='".$data['sep']."'";
-		
-		// Curvalues
-		$extraatt = $extraatt." data-curvalues='".str_replace( "'", "\'", $curvaluesStr )."'";
+		$data["curvalues"] = $curvalues;
 
 		// Putting cur values here
 		$ret="<span class=\"inputSpan $spanextra\"><select name='$inname' id='input_$sfgFieldNum' $extraatt>";
@@ -236,6 +214,14 @@ class SemanticFormsSelect {
 			$ret.="<input type='hidden' name='$hiddenname' value='1' />";
 		}
 
+		
+		// Avoids repeating data info
+		if ( self::notInArray( "selectfield", $data["selectfield"], self::$data ) && ! $staticvalue ) {
+				
+			self::$data[] = $data;
+
+		}
+		
 		if ( !$staticvalue ){
 			Output::addToHeadItem( 'sf_select', self::$data );
 		}
