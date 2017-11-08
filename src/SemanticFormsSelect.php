@@ -94,47 +94,50 @@ class SemanticFormsSelect {
 
 		$data = array();
 
-		if ($staticvalue) {
-
-			$data['sep'] = array_key_exists( 'sep', $other_args ) ? $other_args["sep"] : ',';			
-			$values = explode( $data['sep'] , $values);
-			$values = array_map("trim", $values);
-			$values = array_unique($values);
-			
-			$data['label'] = array_key_exists( 'label', $other_args );
-
-		} else {
-
+		if ( ! $staticvalue ) {
 			if ($wgScriptSelectCount == 0 ) {
 				Output::addModule( 'ext.sf_select.scriptselect' );
 			}
-
+			
 			$wgScriptSelectCount++;
 
-			$data["selectismultiple"] = array_key_exists( "part_of_multiple", $other_args );
+		}
+		
+		$data['label'] = array_key_exists( 'label', $other_args );
 
-			$index = strpos($input_name, "[");
-			$data['selecttemplate'] = substr($input_name, 0, $index);
 
-			// Does hit work for multiple template?
-			$index = strrpos($input_name, "[");
-			$data['selectfield'] = substr( $input_name, $index+1, strlen( $input_name ) - $index - 2 );
+		$data["selectismultiple"] = array_key_exists( "part_of_multiple", $other_args );
 
-			$valueField = array();
-			$data["valuetemplate"] = array_key_exists( "sametemplate", $other_args ) ? $data['selecttemplate'] : $other_args["template"];
-			$data["valuefield"] = $other_args["field"];
+		$index = strpos($input_name, "[");
+		$data['selecttemplate'] = substr($input_name, 0, $index);
 
-			$data['selectrm'] = array_key_exists( 'rmdiv', $other_args );
-			$data['label'] = array_key_exists( 'label', $other_args );
-			$data['sep'] = array_key_exists( 'sep', $other_args ) ? $other_args["sep"] : ',';
+		// Does hit work for multiple template?
+		$index = strrpos($input_name, "[");
+		$data['selectfield'] = substr( $input_name, $index+1, strlen( $input_name ) - $index - 2 );
 
-			if (array_key_exists("query", $selectField ) ) {
-				$data['selectquery'] = $selectField['query'];
-			} else{
-				$data['selectfunction'] = $selectField['function'];
-			}
+		$valueField = array();
+		$data["valuetemplate"] = array_key_exists( "sametemplate", $other_args ) ? $data['selecttemplate'] : $other_args["template"];
+		$data["valuefield"] = $other_args["field"];
 
+		$data['selectrm'] = array_key_exists( 'rmdiv', $other_args );
+		$data['label'] = array_key_exists( 'label', $other_args );
+		$data['sep'] = array_key_exists( 'sep', $other_args ) ? $other_args["sep"] : ',';
+
+		$values = explode( $data['sep'] , $values);
+		$values = array_map("trim", $values);
+		$values = array_unique($values);
+
+		if (array_key_exists("query", $selectField ) ) {
+			$data['selectquery'] = $selectField['query'];
+		} else{
+			$data['selectfunction'] = $selectField['function'];
+		}
+
+		// Avoids repeating data info
+		if ( self::notInArray( "selectfield", $data["selectfield"], self::$data ) ) {
+				
 			self::$data[] = $data;
+
 		}
 
 		$extraatt="";
@@ -172,16 +175,20 @@ class SemanticFormsSelect {
 		$spanextra=$is_mandatory?'mandatoryFieldSpan':'';
 
 		$curvaluesStr = "";
+		$curvalues = null;
 		
-		if ($cur_value){
-			if ($cur_value==='current user'){
+		if ( $cur_value ){
+			if ( $cur_value==='current user' ){
 				$curvaluesStr=$wgUser->getName();
 			}
-			if (is_array($cur_value) ){
+			if ( is_array( $cur_value ) ){
 				$curvaluesStr=implode( $data["sep"], $cur_value );
+				$curvalues = $cur_value;
+
 			} else{
 				// Added sep values
 				$curvaluesStr=trim( $cur_value );
+				$curvalues=array_map("trim", explode($data['sep'], $cur_value));
 			}
 
 		}
@@ -205,27 +212,19 @@ class SemanticFormsSelect {
 		// TODO handle empty value case.
 		$ret.="<option></option>";
 
-		// TODO handle also labels
-		//foreach ($curvalues as $cur) {
-		//	if ( array_key_exists( $cur, $labelArray ) ) {
-		//		$ret.="<option value='".$labelArray[ $val ][0]."' selected='selected'>".$labelArray[ $val ][1]."</option>";
-		//	} else {
-		//		$ret.="<option selected='selected'>$cur</option>";
-		//	}
-		//
-		//}
-
-		// TODO handle labels
-		if ($staticvalue){
-			foreach($values as $val){
-				// if(!in_array($val, $curvalues)){
-					
-				if ( array_key_exists( $val, $labelArray ) ) {
-					$ret.="<option value='".$labelArray[ $val ][0]."'>".$labelArray[ $val ][1]."</option>";
-				} else {
-					$ret.="<option>$val</option>";
+		if ( $staticvalue ){
+			foreach( $values as $val ){
+				
+				$selected = "";
+				if ( in_array( $val, $curvalues ) ) {
+					$selected = " selected='selected'";
 				}
-				// }
+				
+				if ( array_key_exists( $val, $labelArray ) ) {
+					$ret.="<option".$selected." value='".$labelArray[ $val ][0]."'>".$labelArray[ $val ][1]."</option>";
+				} else {
+					$ret.="<option".$selected.">$val</option>";
+				}
 			}
 		}
 
@@ -244,6 +243,23 @@ class SemanticFormsSelect {
 		Output::commitToParserOutput( $this->parser->getOutput() );
 
 		return $ret;
+	}
+	
+	private static function notInArray( $field, $value, $array ) {
+		
+		foreach ( $array as $item ) {
+			
+			if ( array_key_exists( $field, $item ) ) {
+				
+				if ( $item[$field] == $value ) {
+					return false;
+				}
+			}
+			
+		}
+		
+		return true;
+		
 	}
 	
 	private static function getLabels( $labels ) {
