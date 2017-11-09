@@ -88,6 +88,11 @@ function SFSelect_setDependentValues (nameobj, fobj, values){
 	jQuery(selectPat).each(function(index, element){
 		//keep selected values;
 		var selectedValues=jQuery(element).val();
+
+		if ( !selectedValues && fobj.hasOwnProperty("curvalues") ) {
+			selectedValues = fobj.curvalues;
+		}
+		
 		if (!selectedValues){
 			selectedValues=[];
 		} else if (!jQuery.isArray(selectedValues)){
@@ -245,6 +250,7 @@ function SFSelect_arrayEqual(a, b)
 		
 		for(var i=0; i<SFSelect_fobjs.length; i++){
 			
+			// TODO: Handle cases here that are static for ensuring triggering. No more queries
 			SFSelect_prepareQuery( SFSelect_fobjs[i], srcName, v );
 			
 		}

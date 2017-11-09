@@ -124,6 +124,8 @@ class SemanticFormsSelect {
 		} else{
 			$data['selectfunction'] = $selectField['function'];
 		}
+		
+		$data['staticvalue'] = $staticvalue;
 
 		$extraatt="";
 		$is_list=false;
@@ -190,17 +192,26 @@ class SemanticFormsSelect {
 		// TODO handle empty value case.
 		$ret.="<option></option>";
 
+		// TODO: This might be better in Javascript for triggering dependent others
 		if ( $staticvalue ){
 			foreach( $values as $val ){
 				
 				$selected = "";
-				if ( in_array( $val, $curvalues ) ) {
-					$selected = " selected='selected'";
-				}
 				
 				if ( array_key_exists( $val, $labelArray ) ) {
+					
+					if ( in_array( $labelArray[ $val ][0], $curvalues ) ) {
+						$selected = " selected='selected'";
+					}
+					
 					$ret.="<option".$selected." value='".$labelArray[ $val ][0]."'>".$labelArray[ $val ][1]."</option>";
+					
 				} else {
+
+					if ( in_array( $val, $curvalues ) ) {
+						$selected = " selected='selected'";
+					}
+
 					$ret.="<option".$selected.">$val</option>";
 				}
 			}
@@ -215,7 +226,7 @@ class SemanticFormsSelect {
 		}
 
 		
-		// Avoids repeating data info
+		// Avoids repeating data info -> TODO: Pass also staticvalue ones to trigger info
 		if ( self::notInArray( "selectfield", $data["selectfield"], self::$data ) && ! $staticvalue ) {
 				
 			self::$data[] = $data;
