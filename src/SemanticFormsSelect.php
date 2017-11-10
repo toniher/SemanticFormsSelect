@@ -227,7 +227,7 @@ class SemanticFormsSelect {
 
 		
 		// Avoids repeating data info -> TODO: Pass also staticvalue ones to trigger info
-		if ( self::notInArray( "selectfield", $data["selectfield"], self::$data ) && ! $staticvalue ) {
+		if ( self::notInArray( "selectfield", $data["selectfield"], self::$data ) ) {
 				
 			self::$data[] = $data;
 

@@ -250,8 +250,16 @@ function SFSelect_arrayEqual(a, b)
 		
 		for(var i=0; i<SFSelect_fobjs.length; i++){
 			
-			// TODO: Handle cases here that are static for ensuring triggering. No more queries
-			SFSelect_prepareQuery( SFSelect_fobjs[i], srcName, v );
+			if ( SFSelect_fobjs[i].hasOwnProperty("staticvalue") && SFSelect_fobjs[i].staticvalue ) {
+
+				// TODO: Handle cases here that are static for ensuring triggering. No more queries		
+				console.log( v );
+
+			} else {
+				
+				SFSelect_prepareQuery( SFSelect_fobjs[i], srcName, v );
+
+			}
 			
 		}
 	}
