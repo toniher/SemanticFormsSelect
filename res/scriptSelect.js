@@ -252,8 +252,7 @@ function SFSelect_arrayEqual(a, b)
 			
 			if ( SFSelect_fobjs[i].hasOwnProperty("staticvalue") && SFSelect_fobjs[i].staticvalue ) {
 
-				// TODO: Handle cases here that are static for ensuring triggering. No more queries		
-				console.log( v );
+				SFSelect_changeSelected( SFSelect_fobjs[i], srcName );
 
 			} else {
 				
@@ -262,6 +261,14 @@ function SFSelect_arrayEqual(a, b)
 			}
 			
 		}
+	}
+	
+	function SFSelect_changeSelected( fobj, nameobj ) {
+		
+		var selectPat=SFSelect_getSelectFieldPat(nameobj, fobj);
+		
+		console.log( selectPat );
+
 	}
 	
 	function SFSelect_prepareQuery( fobj, srcName, v ) {
