@@ -266,8 +266,36 @@ function SFSelect_arrayEqual(a, b)
 	function SFSelect_changeSelected( fobj, nameobj ) {
 		
 		var selectPat=SFSelect_getSelectFieldPat(nameobj, fobj);
-		
-		console.log( selectPat );
+
+		jQuery(selectPat).each(function(index, element){	
+			//keep selected values;
+			var selectedValues=jQuery(element).val();
+	
+			if ( !selectedValues && fobj.hasOwnProperty("curvalues") ) {
+				selectedValues = fobj.curvalues;
+			}
+			
+			if (!selectedValues){
+				selectedValues=[];
+			} else if (!jQuery.isArray(selectedValues)){
+				selectedValues=[selectedValues];
+			}
+	
+			if ( element.options && element.options.length > 0 ) {
+				
+				var options = jQuery.map( element.options ,function(option) {
+					return option.value;});
+				
+				for ( var c = 0; c < selectedValues.length; c++ ) {
+					
+					if ( jQuery.inArray( selectedValues[c], options ) ) {
+						jQuery( element ).val( selectedValues[c] ); 
+					}
+				}
+				
+			}
+	
+		});
 
 	}
 	
