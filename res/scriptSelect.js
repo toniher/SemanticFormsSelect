@@ -214,6 +214,8 @@ function SFSelect_arrayEqual(a, b)
 
 	'use strict';
 
+	var SFSelect_datachanged = {};
+
 	/**
 	 * valuetemplate:string,
 	 * valuefield:string, value is the form field on which other select element depends on. change
@@ -232,7 +234,6 @@ function SFSelect_arrayEqual(a, b)
 
 	function SFSelect_changeHandler (src ) {
 
-		//console.log("change is called with "+src.name);
 		if (src.tagName.toLowerCase()!='select'&& src.tagName.toLowerCase()!='input')
 		{
 			return;
@@ -247,7 +248,7 @@ function SFSelect_arrayEqual(a, b)
 		}
 		
 		var srcName=SFSelect_parseName(src.name);
-		
+	
 		for(var i=0; i<SFSelect_fobjs.length; i++){
 			
 			if ( SFSelect_fobjs[i].hasOwnProperty("staticvalue") && SFSelect_fobjs[i].staticvalue ) {
@@ -280,16 +281,24 @@ function SFSelect_arrayEqual(a, b)
 			} else if (!jQuery.isArray(selectedValues)){
 				selectedValues=[selectedValues];
 			}
-	
+
 			if ( element.options && element.options.length > 0 ) {
 				
 				var options = jQuery.map( element.options ,function(option) {
 					return option.value;});
-				
+			
 				for ( var c = 0; c < selectedValues.length; c++ ) {
-					
+			
 					if ( jQuery.inArray( selectedValues[c], options ) ) {
-						jQuery( element ).val( selectedValues[c] ); 
+
+						var changed = jQuery( element ).attr( "data-changed" );
+						
+						if ( changed ) {
+
+							jQuery( element ).val( selectedValues[c] ).trigger('change');
+
+						}
+						
 					}
 				}
 				
@@ -300,7 +309,7 @@ function SFSelect_arrayEqual(a, b)
 	}
 	
 	function SFSelect_prepareQuery( fobj, srcName, v ) {
-		
+
 		if (srcName.template==fobj.valuetemplate && srcName.property==fobj.valuefield) {
 
 			//good, we have a match.
@@ -370,7 +379,6 @@ function SFSelect_arrayEqual(a, b)
 		return newfobjs;
 	}
 
-	//console.log( SFSelect_fobjs );
 
 	//simplify duplicated object.
 	SFSelect_fobjs = SFSelect_removeDuplicateFobjs( SFSelect_fobjs );
@@ -385,21 +393,21 @@ function SFSelect_arrayEqual(a, b)
 	for (var i=0; i<SFSelect_fobjs.length; i++){
 	
 		var fobj = SFSelect_fobjs[i];
-		
-		//var valuepat = "input[name='" + fobj.valuetemplate + "\\["+ fobj.valuefield + "\\]']";
+	
+		var valuepat = "input[name='" + fobj.valuetemplate + "\\["+ fobj.valuefield + "\\]']";
 		
 		// hack to support multi instance templates: select all "select" items starting with fobj.valuetemplate
 		// example name attribute: name="myTemplate[0a][myField]"
-		var valuepat = 'input[name^="' + fobj.valuetemplate + '"]';
+		// var valuepat = 'input[name^="' + fobj.valuetemplate + '"]';
 	
 		if ($(valuepat).val()){
 			objs=jQuery(valuepat);
 		} else{
-			//valuepat= "select[name='" + fobj.valuetemplate + "\\["+ fobj.valuefield + "\\]']";
+			valuepat= "select[name='" + fobj.valuetemplate + "\\["+ fobj.valuefield + "\\]']";
 			
 			// hack to support multi instance templates: select all "select" items starting with fobj.valuetemplate
 			// example name attribute: name="myTemplate[0a][myField]"
-			valuepat = 'select[name^="' + fobj.valuetemplate + '"]';
+			// valuepat = 'select[name^="' + fobj.valuetemplate + '"]';
 			
 			objs=jQuery(valuepat);
 		}
