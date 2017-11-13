@@ -214,8 +214,6 @@ function SFSelect_arrayEqual(a, b)
 
 	'use strict';
 
-	var SFSelect_datachanged = {};
-
 	/**
 	 * valuetemplate:string,
 	 * valuefield:string, value is the form field on which other select element depends on. change
