@@ -135,7 +135,7 @@ class ApiRequestProcessor {
 		$values = array_map( "trim", $values );
 		$values = array_unique( $values );
 
-		sort( $values );
+		// sort( $values ); # This removes custom sort in queries
 		array_unshift( $values, "" );
 
 		return $values;
