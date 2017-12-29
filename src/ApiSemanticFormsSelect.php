@@ -36,8 +36,10 @@ class ApiSemanticFormsSelect extends ApiBase {
 			$this->extractRequestParams()
 		);
 
+
 		$result = $this->getResult();
 		$result->setIndexedTagName( $resultValues->values, 'value' );
+		$result->addValue( $this->getModuleName(), 'params', $resultValues->params );
 		$result->addValue( $this->getModuleName(), 'values', $resultValues->values );
 		$result->addValue( $this->getModuleName(), 'count', $resultValues->count );
 

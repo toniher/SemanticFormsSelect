@@ -88,13 +88,14 @@ class ApiRequestProcessor {
 		if ( $this->debugFlag ) {
 			error_log( implode( "|", $params ) );
 		}
-
+	
 		$values = $this->getFormattedValuesFrom(
 			$sep,
 			QueryProcessor::getResultFromFunctionParams( $params, SMW_OUTPUT_WIKI )
 		);
 
 		return json_encode( array(
+			"params" => $params,
 			"values" => $values,
 			"count"  => count( $values )
 		) );
@@ -135,7 +136,7 @@ class ApiRequestProcessor {
 		$values = array_map( "trim", $values );
 		$values = array_unique( $values );
 
-		sort( $values );
+		//sort( $values ); # Remove sort -> breaks sorting in queries
 		array_unshift( $values, "" );
 
 		return $values;
